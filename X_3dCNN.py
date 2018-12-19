@@ -5,7 +5,7 @@ import tensorflow as tf
 import random
 from sklearn.model_selection import KFold
 
-############################################################################################讀資料
+############################################################################################read data
 
 tumor_data_AXC = {}
 tumor_data_AX1 = {}
@@ -50,14 +50,14 @@ for root, dirs, filenames in os.walk("X_pickle_1211/tumor_all/AX2"):
         except:
             pass
 
-############################################################################################取AX1 AX2有的
+############################################################################################AX1 AX2 intersection
 
 tumor_label_intersection = {}
 for i in tumor_label:
     if i.replace("AXC", "AX1") in tumor_data_AX1 and i.replace("AXC", "AX2") in tumor_data_AX2:
         tumor_label_intersection[i] = tumor_label[i]
 
-############################################################################################取等比例
+############################################################################################equal
 '''
 tumor_label_intersection = tumor_label
 label_count = 0
@@ -90,7 +90,7 @@ for i in selected_tumor:
     #selected_tumor_data_AX1.append(tumor_data_AX1[i.replace("AXC", "AX1")])
     #selected_tumor_data_AX2.append(tumor_data_AX2[i.replace("AXC", "AX2")])
 
-############################################################################################鋪好鋪滿
+############################################################################################pad
 
 #set input shape (125,125,40)
 
@@ -132,7 +132,7 @@ pad_selected_tumor_data_AXC = np.asarray(pad_selected_tumor_data_AXC).reshape([1
 pad_selected_tumor_data = pad_selected_tumor_data_AXC
 print(pad_selected_tumor_data.shape)
 
-############################################################################################shuffle與切割
+############################################################################################shuffle and train/test
 def shuffle_in_unison(a, b):
     assert len(a) == len(b)
     rng_state = np.random.get_state()
@@ -168,8 +168,7 @@ def max_pool_2x2(x):
 def bano(x, out_size):
     fc_mean, fc_var = tf.nn.moments(
         x,
-        axes=[0, 1, 2, 3],   # 想要 normalize 的维度, [0] 代表 batch 维度
-                    # 如果是图像数据, 可以传入 [0, 1, 2], 相当于求[batch, height, width] 的均值/方差, 注意不要加入 channel 维度
+        axes=[0, 1, 2, 3],   
     )
     scale = tf.Variable(tf.ones([out_size]))
     shift = tf.Variable(tf.zeros([out_size]))
@@ -244,7 +243,7 @@ for i in range(10):
         print("-----------------------------------------------------------")
 
 """	
-############################################################################################CV開跑
+############################################################################################CV
 kf = KFold(n_splits=5)
 AUC = []
 Sensitivity = []
@@ -300,7 +299,7 @@ for train_idx, val_idx in kf.split(pad_data_train, label_train):
     print("Model "+str(name)+" saved.")
     print("-----------------------------------------------------------")
     name += 1
-############################################################################################CV結果
+############################################################################################CV result
 print("###########################CV##################################")
 print("AUC")
 print(AUC)
@@ -315,7 +314,7 @@ print("Dice")
 print(Dice)
 print(sum(Dice)/float(len(Dice)))
 
-############################################################################################test ensemble中
+############################################################################################test ensemble
 print("###########################test##################################")
 AUC = []
 Sensitivity = []
@@ -365,7 +364,7 @@ for i in mean_pred:
         final_pred.append([0,1])
 final_pred = np.asarray(final_pred)
 
-############################################################################################test結果
+############################################################################################test resulte
 print("###########################ENSENBLE##################################")
 res_res = 0
 res_non = 0
